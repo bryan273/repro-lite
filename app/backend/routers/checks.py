@@ -21,20 +21,20 @@ router = APIRouter(prefix="/api/v1/entities/checks", tags=["checks"])
 class ChecksData(BaseModel):
     """Entity data schema (for create/update)"""
     claim: str
-    paper_link: str = None
+    paper_link: Optional[str] = None
     verdict: str
-    metric: str = None
-    dataset: str = None
-    target_value: float = None
-    measured_value: float = None
-    rerun_value: float = None
-    tolerance_pct: float = None
-    flags: str = None
-    code: str = None
-    summary: str = None
-    tokens_used: int = None
-    elapsed_ms: int = None
-    lang: str = None
+    metric: Optional[str] = None
+    dataset: Optional[str] = None
+    target_value: Optional[float] = None
+    measured_value: Optional[float] = None
+    rerun_value: Optional[float] = None
+    tolerance_pct: Optional[float] = None
+    flags: Optional[str] = None
+    code: Optional[str] = None
+    summary: Optional[str] = None
+    tokens_used: Optional[int] = None
+    elapsed_ms: Optional[int] = None
+    lang: Optional[str] = None
 
 
 class ChecksUpdateData(BaseModel):

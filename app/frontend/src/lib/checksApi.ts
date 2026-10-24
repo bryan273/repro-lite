@@ -31,9 +31,33 @@ export function parseFlags(raw: string | null | undefined): AuditFlag[] {
   }
 }
 
+/**
+ * The generated backend schema rejects explicit nulls for optional fields (HTTP 422),
+ * so empty or non-finite values are omitted from the payload instead of sent as null.
+ */
+function compact(obj: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === null || v === undefined || v === '') continue;
+    if (typeof v === 'number' && !Number.isFinite(v)) continue;
+    out[k] = typeof v === 'number' && (k === 'tokens_used' || k === 'elapsed_ms') ? Math.round(v) : v;
+  }
+  return out;
+}
+
+export function apiErrorMessage(e: unknown): string {
+  const err = e as { data?: { detail?: unknown }; response?: { data?: { detail?: unknown } }; message?: string };
+  const detail = err?.data?.detail ?? err?.response?.data?.detail;
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    return detail.map((d: { loc?: unknown[]; msg?: string }) => `${(d.loc ?? []).slice(1).join('.')}: ${d.msg ?? ''}`).join('; ');
+  }
+  return err?.message || String(e);
+}
+
 export async function saveCheck(input: CheckInput, s: CheckState): Promise<CheckRecord> {
   const res = await client.entities.checks.create({
-    data: {
+    data: compact({
       claim: input.claim,
       paper_link: input.paperLink || null,
       verdict: s.verdict ?? 'could_not_run',
@@ -49,7 +73,7 @@ export async function saveCheck(input: CheckInput, s: CheckState): Promise<Check
       tokens_used: s.tokens,
       elapsed_ms: s.elapsedMs,
       lang: input.lang,
-    },
+    }),
   });
   return res.data as CheckRecord;
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Loader2, Square } from 'lucide-react';
+import { ArrowRight, Download, Loader2, Square } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { Shell, VerdictBadge } from '@/components/Shell';
 import { RunView } from '@/components/RunView';
 import { usePrefs } from '@/lib/i18n';
 import { buildReport, downloadText, fmtNum, runCheck, verdictLabel, type CheckInput, type CheckState } from '@/lib/agent';
-import { listRecentChecks, saveCheck, type CheckRecord } from '@/lib/checksApi';
+import { apiErrorMessage, listRecentChecks, saveCheck, type CheckRecord } from '@/lib/checksApi';
 
 const EXAMPLES = {
   en: [
@@ -35,6 +35,9 @@ export default function Index() {
   const [lastInput, setLastInput] = useState<CheckInput | null>(null);
   const [recent, setRecent] = useState<CheckRecord[] | null>(null);
   const [recentError, setRecentError] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [saveError, setSaveError] = useState('');
+  const [savedId, setSavedId] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const runRef = useRef<HTMLDivElement | null>(null);
 
@@ -67,6 +70,9 @@ export default function Index() {
       lang,
     };
     setLastInput(input);
+    setSaveStatus('idle');
+    setSaveError('');
+    setSavedId(null);
     setRunning(true);
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -74,13 +80,25 @@ export default function Index() {
     const final = await runCheck(input, setState, ctrl.signal);
     setRunning(false);
     if (final.verdict && !final.rateLimited && final.error !== 'aborted') {
-      try {
-        await saveCheck(input, final);
-        toast.success(t('saved'));
-        loadRecent();
-      } catch {
-        toast.error(t('saveFailed'));
-      }
+      await persist(input, final);
+    }
+  };
+
+  const persist = async (input: CheckInput, final: CheckState) => {
+    setSaveStatus('saving');
+    setSaveError('');
+    try {
+      const rec = await saveCheck(input, final);
+      setSaveStatus('saved');
+      setSavedId(rec?.id ?? null);
+      toast.success(t('saved'));
+      await loadRecent();
+    } catch (e) {
+      const msg = apiErrorMessage(e);
+      console.error('Saving check failed:', e);
+      setSaveStatus('error');
+      setSaveError(msg);
+      toast.error(`${t('saveFailed')} ${msg}`);
     }
   };
 
@@ -173,6 +191,26 @@ export default function Index() {
       {state && (
         <section ref={runRef} className="scroll-mt-20 border-t border-border pt-12">
           <RunView state={state} onDownload={download} />
+          {state.verdict && !running && (
+            <div className="mb-12 flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-4 text-sm">
+              <Button type="button" variant="outline" className="h-10 gap-2 !bg-transparent" onClick={download}>
+                <Download className="h-4 w-4" />{t('download')}
+              </Button>
+              {saveStatus === 'saving' && <span className="inline-flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />{t('saving')}</span>}
+              {saveStatus === 'saved' && (
+                <span className="text-muted-foreground">
+                  {t('saved')}{' '}
+                  {savedId !== null && <Link to={`/check/${savedId}`} className="text-primary underline-offset-4 hover:underline">{t('viewDetails')}</Link>}
+                </span>
+              )}
+              {saveStatus === 'error' && lastInput && (
+                <>
+                  <span className="min-w-0 flex-1 break-words text-destructive">{t('saveFailed')} {saveError}</span>
+                  <Button type="button" className="h-10" onClick={() => persist(lastInput, state)}>{t('retrySave')}</Button>
+                </>
+              )}
+            </div>
+          )}
         </section>
       )}
 
