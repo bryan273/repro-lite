@@ -1,0 +1,66 @@
+{
+    "title": "checks",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "primary_key": true,
+            "autoincrement": true
+        },
+        "claim": {
+            "type": "string",
+            "format": "text"
+        },
+        "paper_link": {
+            "type": "string"
+        },
+        "verdict": {
+            "type": "string",
+            "description": "reproduced | partial | not_reproduced | could_not_run"
+        },
+        "metric": {
+            "type": "string"
+        },
+        "dataset": {
+            "type": "string"
+        },
+        "target_value": {
+            "type": "number"
+        },
+        "measured_value": {
+            "type": "number"
+        },
+        "rerun_value": {
+            "type": "number"
+        },
+        "tolerance_pct": {
+            "type": "number"
+        },
+        "flags": {
+            "type": "string",
+            "format": "text",
+            "description": "JSON array of audit flags"
+        },
+        "code": {
+            "type": "string",
+            "format": "text"
+        },
+        "summary": {
+            "type": "string",
+            "format": "text"
+        },
+        "tokens_used": {
+            "type": "integer"
+        },
+        "elapsed_ms": {
+            "type": "integer"
+        },
+        "lang": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "claim",
+        "verdict"
+    ]
+}
