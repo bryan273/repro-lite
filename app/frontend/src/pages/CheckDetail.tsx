@@ -75,14 +75,14 @@ export default function CheckDetail() {
           <article className="mt-6 space-y-8">
             <div>
               <VerdictBadge verdict={rec.verdict} label={verdictLabel(lang, rec.verdict)} large />
-              <h1 className="mt-4 break-words font-display text-[28px] font-semibold leading-tight sm:text-[34px]">{rec.claim}</h1>
+              <h1 className="mt-4 break-words font-display text-[28px] leading-tight sm:text-[34px]">{rec.claim}</h1>
               {rec.paper_link && (
                 <a href={rec.paper_link} target="_blank" rel="noreferrer" className="mt-2 inline-block break-all text-sm text-primary underline-offset-4 hover:underline">
                   {t('paper')}: {rec.paper_link}
                 </a>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-5 rounded-xl border border-border bg-card p-5 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-5 rounded-2xl border border-border bg-card p-5 sm:grid-cols-4 shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
               <Stat label={t('measured')} value={fmtNum(rec.measured_value)} />
               <Stat label={t('target')} value={fmtNum(rec.target_value)} />
               <Stat label={t('rerun')} value={fmtNum(rec.rerun_value)} />
@@ -93,18 +93,18 @@ export default function CheckDetail() {
               <Stat label={t('totalTime')} value={`${((rec.elapsed_ms ?? 0) / 1000).toFixed(1)} s`} />
             </div>
             <section>
-              <h2 className="font-display text-xl font-semibold">{t('flags')}</h2>
+              <h2 className="font-display text-xl">{t('flags')}</h2>
               <div className="mt-3"><FlagList flags={parseFlags(rec.flags)} /></div>
             </section>
             {rec.summary && (
               <section>
-                <h2 className="font-display text-xl font-semibold">{t('summary')}</h2>
+                <h2 className="font-display text-xl">{t('summary')}</h2>
                 <p className="mt-3 whitespace-pre-wrap text-[15px] leading-relaxed">{rec.summary}</p>
               </section>
             )}
             {rec.code && (
               <section>
-                <h2 className="font-display text-xl font-semibold">{t('finalCode')}</h2>
+                <h2 className="font-display text-xl">{t('finalCode')}</h2>
                 <CodeBlock code={rec.code} className="mt-3" />
               </section>
             )}

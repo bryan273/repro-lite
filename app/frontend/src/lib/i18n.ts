@@ -82,6 +82,11 @@ const dict = {
     stopped: 'Stopped by user.',
     toggleTheme: 'Toggle dark mode',
     finalCode: 'Final code',
+    partOf: 'part of Repro Suite',
+    allApps: 'All apps',
+    openMenu: 'Open menu',
+    navigation: 'Navigation',
+    newTab: 'opens in a new tab',
   },
   zh: {
     brand: 'Repro Lite',
@@ -161,6 +166,11 @@ const dict = {
     stopped: '已被用户停止。',
     toggleTheme: '切换深色模式',
     finalCode: '最终代码',
+    partOf: 'Repro Suite 的一部分',
+    allApps: '全部应用',
+    openMenu: '打开菜单',
+    navigation: '导航',
+    newTab: '在新标签页打开',
   },
 } as const;
 
@@ -179,14 +189,12 @@ const PrefsContext = createContext<PrefsValue | null>(null);
 export function PrefsProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => (localStorage.getItem('repro-lite-lang') === 'zh' ? 'zh' : 'en'));
   const [dark, setDark] = useState<boolean>(() => {
-    const s = localStorage.getItem('repro-lite-theme');
-    if (s) return s === 'dark';
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+    return localStorage.getItem('repro.theme2') === 'dark';
   });
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
-    localStorage.setItem('repro-lite-theme', dark ? 'dark' : 'light');
+    localStorage.setItem('repro.theme2', dark ? 'dark' : 'light');
   }, [dark]);
 
   useEffect(() => {

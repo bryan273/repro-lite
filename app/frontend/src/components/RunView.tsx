@@ -23,7 +23,7 @@ function Step({ n, status, title, desc, children, last }: { n: number; status: S
       <StatusDot status={status} n={n} />
       <div className="min-w-0 flex-1 pb-10">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h3 className="font-display text-xl font-semibold">{title}</h3>
+          <h3 className="font-display text-xl">{title}</h3>
           <span className="text-xs uppercase tracking-wide text-muted-foreground">{t(statusKey[status])}</span>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
@@ -33,7 +33,7 @@ function Step({ n, status, title, desc, children, last }: { n: number; status: S
   );
 }
 
-const card = 'rounded-xl border border-border bg-card p-4 shadow-[0_1px_2px_rgba(20,32,46,0.06)] sm:p-5';
+const card = 'rounded-2xl border border-border bg-card p-4 shadow-[0_8px_24px_rgba(16,24,40,0.06)] sm:p-5';
 
 export function RunView({ state, onDownload }: { state: CheckState; onDownload: () => void }) {
   const { t, lang } = usePrefs();
@@ -41,13 +41,13 @@ export function RunView({ state, onDownload }: { state: CheckState; onDownload: 
   return (
     <div>
       {state.rateLimited && (
-        <div className="mb-8 flex gap-3 rounded-xl border border-[#A66A00]/30 bg-[#A66A00]/10 p-4 text-sm">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#A66A00]" />
+        <div className="mb-8 flex gap-3 rounded-2xl border border-[#B45309]/30 bg-[#B45309]/10 p-4 text-sm">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#B45309]" />
           <span>{t('rateLimited')}</span>
         </div>
       )}
       {state.error && !state.rateLimited && state.error === 'aborted' && (
-        <div className="mb-8 rounded-xl border border-border bg-muted p-4 text-sm">{t('stopped')}</div>
+        <div className="mb-8 rounded-2xl border border-border bg-muted p-4 text-sm">{t('stopped')}</div>
       )}
 
       <Step n={1} status={state.steps.plan} title={t('stepPlan')} desc={t('stepPlanDesc')}>
@@ -103,7 +103,7 @@ export function RunView({ state, onDownload }: { state: CheckState; onDownload: 
                 <div className="mt-3">
                   <div className="text-xs uppercase tracking-wide text-muted-foreground">{t('output')}</div>
                   <CodeBlock code={e.stdout || (e.stderr ? '' : t('noOutput'))} className={cn('mt-2 bg-background', !e.stdout && !e.stderr && 'text-muted-foreground', !e.stdout && e.stderr && 'hidden')} />
-                  {e.stderr && <CodeBlock code={e.stderr} className="mt-2 bg-background text-[#B4372F] dark:text-[#EE7D74]" />}
+                  {e.stderr && <CodeBlock code={e.stderr} className="mt-2 bg-background text-[#C62828] dark:text-[#EF7A73]" />}
                 </div>
               )}
             </div>
@@ -123,7 +123,7 @@ export function RunView({ state, onDownload }: { state: CheckState; onDownload: 
             <p className="mt-4 text-sm">
               {state.rerun.value === null ? t('rerunNoValue') : (state.rerun.diffPct ?? 0) > 1 ? t('rerunMismatch') : t('rerunOk')}
             </p>
-            {state.rerun.value === null && state.rerun.stderr && <CodeBlock code={state.rerun.stderr} className="mt-3 text-[#B4372F] dark:text-[#EE7D74]" />}
+            {state.rerun.value === null && state.rerun.stderr && <CodeBlock code={state.rerun.stderr} className="mt-3 text-[#C62828] dark:text-[#EF7A73]" />}
           </div>
         )}
       </Step>
@@ -139,7 +139,7 @@ export function RunView({ state, onDownload }: { state: CheckState; onDownload: 
 
       <Step n={5} status={state.steps.verdict} title={t('stepVerdict')} desc="" last>
         {state.verdict && (
-          <div className={cn('rounded-xl border-2 bg-card p-5 sm:p-6', verdictTone(state.verdict).split(' ').filter((x) => x.includes('border')).join(' '))}>
+          <div className={cn('rounded-2xl border-2 bg-card p-5 sm:p-6', verdictTone(state.verdict).split(' ').filter((x) => x.includes('border')).join(' '))}>
             <VerdictBadge verdict={state.verdict} label={verdictLabel(lang, state.verdict)} large />
             <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
               <Stat label={t('measured')} value={fmtNum(state.measured)} />

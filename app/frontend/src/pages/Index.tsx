@@ -109,10 +109,10 @@ export default function Index() {
 
   return (
     <Shell>
-      <section className="grid gap-10 py-12 sm:py-16 lg:grid-cols-12 lg:gap-12 lg:py-20">
-        <div className="lg:col-span-7">
-          <p className="text-sm font-medium uppercase tracking-[0.14em] text-primary">{t('brand')}</p>
-          <h1 className="mt-4 font-display text-[38px] font-semibold leading-[1.08] tracking-tight sm:text-[52px]">{t('heroTitle')}</h1>
+      <section id="check" className="grid scroll-mt-20 gap-10 py-10 sm:py-14 xl:grid-cols-12 xl:gap-12 xl:py-16">
+        <div className="xl:col-span-7">
+          <p className="tnum text-xs font-medium uppercase tracking-[0.14em] text-primary">{t('brand')}</p>
+          <h1 className="mt-4 font-display text-[38px] leading-[1.08] tracking-tight sm:text-[52px]">{t('heroTitle')}</h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{t('heroBody')}</p>
           <ol className="mt-8 grid max-w-xl grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             {(['stepPlan', 'stepRun', 'stepRerun', 'stepAudit'] as const).map((k, i) => (
@@ -125,9 +125,9 @@ export default function Index() {
           <p className="mt-8 max-w-xl border-t border-border pt-4 text-sm text-muted-foreground">{t('honesty')}</p>
         </div>
 
-        <div className="lg:col-span-5">
+        <div className="xl:col-span-5">
           <form
-            className="rounded-xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(20,32,46,0.06)] sm:p-6"
+            className="rounded-2xl border border-border bg-card p-5 shadow-[0_8px_24px_rgba(16,24,40,0.06)] sm:p-6"
             onSubmit={(e) => {
               e.preventDefault();
               if (!running) start();
@@ -189,10 +189,10 @@ export default function Index() {
       </section>
 
       {state && (
-        <section ref={runRef} className="scroll-mt-20 border-t border-border pt-12">
+        <section id="run" ref={runRef} className="scroll-mt-20 border-t border-border pt-12">
           <RunView state={state} onDownload={download} />
           {state.verdict && !running && (
-            <div className="mb-12 flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-4 text-sm">
+            <div className="mb-12 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card p-4 text-sm shadow-[0_8px_24px_rgba(16,24,40,0.06)]">
               <Button type="button" variant="outline" className="h-10 gap-2 !bg-transparent" onClick={download}>
                 <Download className="h-4 w-4" />{t('download')}
               </Button>
@@ -214,8 +214,8 @@ export default function Index() {
         </section>
       )}
 
-      <section className="border-t border-border pt-12">
-        <h2 className="font-display text-[30px] font-semibold leading-tight">{t('recent')}</h2>
+      <section id="recent" className="scroll-mt-20 border-t border-border pt-12">
+        <h2 className="font-display text-[30px] leading-tight">{t('recent')}</h2>
         <p className="mt-2 text-muted-foreground">{t('recentDesc')}</p>
         <div className="mt-8">
           {recent === null ? (
@@ -223,14 +223,14 @@ export default function Index() {
           ) : recentError ? (
             <p className="text-sm text-destructive">{t('loadError')}</p>
           ) : recent.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">{t('emptyGallery')}</p>
+            <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">{t('emptyGallery')}</p>
           ) : (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {recent.map((r) => (
                 <Link
                   key={r.id}
                   to={`/check/${r.id}`}
-                  className="group flex min-w-0 flex-col rounded-xl border border-border bg-card p-5 transition-colors duration-150 hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="group flex min-w-0 flex-col rounded-2xl border border-border bg-card p-5 transition-colors duration-150 hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring shadow-[0_8px_24px_rgba(16,24,40,0.06)]"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <VerdictBadge verdict={r.verdict} label={verdictLabel(lang, r.verdict)} />
