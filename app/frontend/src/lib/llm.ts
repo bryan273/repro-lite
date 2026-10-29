@@ -58,12 +58,25 @@ export async function callLlm(opts: {
     json_mode: opts.jsonMode ?? false,
   };
   if (opts.tools?.length) body.tools = opts.tools;
-  const res = await fetch(GATEWAY_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-    signal: opts.signal,
-  });
+  let res: Response | null = null;
+  // the gateway sometimes answers "busy" (503) or the connection drops: try again a couple of times before giving up
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      res = await fetch(GATEWAY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: opts.signal,
+      });
+    } catch (e) {
+      if (opts.signal?.aborted || attempt === 2) throw e;
+      await new Promise((r) => setTimeout(r, 3000 * (attempt + 1)));
+      continue;
+    }
+    if (res.status < 500 || attempt === 2) break;
+    await new Promise((r) => setTimeout(r, 3000 * (attempt + 1)));
+  }
+  if (!res) throw new Error('LLM gateway unreachable');
   if (res.status === 429) throw new RateLimitError();
   if (!res.ok) {
     let detail = '';

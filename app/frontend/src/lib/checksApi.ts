@@ -1,4 +1,4 @@
-import { client } from './api';
+import { suiteCall } from './suiteData';
 import type { AuditFlag, CheckInput, CheckState } from './agent';
 
 export interface CheckRecord {
@@ -56,8 +56,7 @@ export function apiErrorMessage(e: unknown): string {
 }
 
 export async function saveCheck(input: CheckInput, s: CheckState): Promise<CheckRecord> {
-  const res = await client.entities.checks.create({
-    data: compact({
+  const data = compact({
       claim: input.claim,
       paper_link: input.paperLink || null,
       verdict: s.verdict ?? 'could_not_run',
@@ -73,17 +72,17 @@ export async function saveCheck(input: CheckInput, s: CheckState): Promise<Check
       tokens_used: s.tokens,
       elapsed_ms: s.elapsedMs,
       lang: input.lang,
-    }),
   });
-  return res.data as CheckRecord;
+  const res = await suiteCall<{ id: number; created_at: string }>({ op: 'create', collection: 'checks', data });
+  return { ...data, id: res.id, created_at: res.created_at } as unknown as CheckRecord;
 }
 
 export async function listRecentChecks(limit = 12): Promise<CheckRecord[]> {
-  const res = await client.entities.checks.query({ sort: '-created_at', limit });
-  return (res.data?.items ?? []) as CheckRecord[];
+  const res = await suiteCall<{ items: CheckRecord[] }>({ op: 'list', collection: 'checks', limit });
+  return res.items ?? [];
 }
 
 export async function getCheck(checkId: string): Promise<CheckRecord> {
-  const res = await client.entities.checks.get({ id: checkId });
-  return res.data as CheckRecord;
+  const res = await suiteCall<{ item: CheckRecord }>({ op: 'get', collection: 'checks', id: checkId });
+  return res.item;
 }
