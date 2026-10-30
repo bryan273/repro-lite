@@ -30,7 +30,7 @@ export function Shell({ children }: { children: ReactNode }) {
 }
 
 const VERDICT_STYLE: Record<string, string> = {
-  reproduced: 'bg-[#15803D]/10 text-[#15803D] border-[#15803D]/30 dark:text-[#4ADE80] dark:bg-[#4ADE80]/10 dark:border-[#4ADE80]/30',
+  reproduced: 'bg-[#15803D]/10 text-[#136F36] border-[#15803D]/30 dark:text-[#4ADE80] dark:bg-[#4ADE80]/10 dark:border-[#4ADE80]/30',
   partial: 'bg-[#B45309]/10 text-[#B45309] border-[#B45309]/30 dark:text-[#F0A94B] dark:bg-[#F0A94B]/10 dark:border-[#F0A94B]/30',
   not_reproduced: 'bg-[#C62828]/10 text-[#C62828] border-[#C62828]/30 dark:text-[#EF7A73] dark:bg-[#EF7A73]/10 dark:border-[#EF7A73]/30',
   could_not_run: 'bg-muted text-muted-foreground border-border',
