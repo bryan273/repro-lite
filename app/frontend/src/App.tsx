@@ -7,6 +7,7 @@ import Index from './pages/Index';
 import AuthCallback from './pages/AuthCallback';
 import AuthError from './pages/AuthError';
 import CheckDetail from './pages/CheckDetail';
+import NotFound from './components/NotFound';
 import { PrefsProvider } from './lib/i18n';
 // MODULE_IMPORTS_START
 // MODULE_IMPORTS_END
@@ -20,6 +21,7 @@ const AppRoutes = () => (
     <Route path="/auth/callback" element={<AuthCallback />} />
     <Route path="/auth/error" element={<AuthError />} />
     <Route path="/check/:id" element={<CheckDetail />} />
+    <Route path="*" element={<NotFound appId="lite" />} />
     {/* MODULE_ROUTES_START */}
     {/* MODULE_ROUTES_END */}
   </Routes>
