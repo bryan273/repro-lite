@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import SuiteTopBar from '@/components/SuiteTopBar';
+import { SuiteFooter } from '@/components/SuiteFooter';
 import { usePrefs } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -22,10 +23,8 @@ export function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SuiteTopBar appId="lite" brand={t('brand')} letter="L" homeTo="/#check" nav={nav} dark={dark} onToggleDark={toggleDark} lang={lang} onLang={setLang} />
-      <main className="mx-auto max-w-[1160px] px-4 pb-24 sm:px-8">{children}</main>
-      <footer className="border-t border-border">
-        <div className="mx-auto max-w-[1160px] px-4 py-8 text-sm text-muted-foreground sm:px-8">{t('honesty')}</div>
-      </footer>
+      <main id="top" className="mx-auto max-w-[1160px] px-4 pb-24 sm:px-8">{children}</main>
+      <SuiteFooter lang={lang} appId="lite" note={t('honesty')} />
     </div>
   );
 }

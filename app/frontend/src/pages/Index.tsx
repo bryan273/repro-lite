@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Shell, VerdictBadge } from '@/components/Shell';
+import { SuiteFaq, SuiteCta } from '@/components/SuiteFooter';
 import { RunView } from '@/components/RunView';
 import { usePrefs } from '@/lib/i18n';
 import { buildReport, downloadText, fmtNum, runCheck, verdictLabel, type CheckInput, type CheckState } from '@/lib/agent';
@@ -21,6 +22,24 @@ const EXAMPLES = {
     { tag: 'breast_cancer', claim: 'Isolation Forest 在乳腺癌数据集上（恶性视为异常）ROC AUC 约 0.95，100 棵树，5 折交叉验证。' },
     { tag: 'wine', claim: '在标准化后的 wine 数据集上，k=3 的 KMeans 与真实品种的调整兰德指数约为 0.90。' },
     { tag: 'digits', claim: '在 digits 数据集上，逻辑回归（像素标准化）5 折交叉验证准确率约 0.96。' },
+  ],
+};
+
+
+const FAQ = {
+  en: [
+    { q: 'What does Repro Lite actually do?', a: 'It turns your claim into a fixed contract (data, method, metric), writes Python, runs it, re-runs it from a clean start, audits its own code and gives a plain verdict: reproduced, partly reproduced, not reproduced, or could not run.' },
+    { q: 'Where does the code run?', a: 'In this browser tab, using Pyodide (Python compiled to WebAssembly). Nothing is installed and your claim is only sent to the AI model that writes the plan and code.' },
+    { q: 'Does it replace a full reproduction?', a: 'No. It checks a claim on a small public dataset and at small scale. For a full paper, use the Paper Repro Agent, or ask Repro Desk for a human-checked report.' },
+    { q: 'What does the tolerance mean?', a: 'The relative gap, in percent, between your number and the measured number that still counts as reproduced. The default is 3%. It is fixed before the code runs, so it cannot be tuned after seeing the result.' },
+    { q: 'Who can see my check?', a: 'Finished checks are saved and shown in Recent checks to other visitors. Do not paste private or unpublished material.' },
+  ],
+  zh: [
+    { q: 'Repro Lite 具体做什么？', a: '它把你的结论变成固定的契约（数据、方法、指标），编写并运行 Python，再从干净环境重新运行，审查自己的代码，最后给出明确结论：已复现、部分复现、未复现或无法运行。' },
+    { q: '代码在哪里运行？', a: '就在当前浏览器标签页，使用 Pyodide（编译成 WebAssembly 的 Python）。无需安装；你的结论只会发送给负责写计划和代码的 AI 模型。' },
+    { q: '它能替代完整复现吗？', a: '不能。它只在小型公开数据集上、以小规模核验一个结论。完整论文请用 Paper Repro Agent，或向 Repro Desk 申请人工核对的报告。' },
+    { q: '容差是什么意思？', a: '你给出的数字与实测数字之间，仍算作“已复现”的相对差距（百分比），默认 3%。它在运行代码之前就固定，不能看到结果后再调整。' },
+    { q: '别人能看到我的核验吗？', a: '完成的核验会保存，并显示在“最近核验”中供其他访客查看。请勿粘贴私密或未发表的内容。' },
   ],
 };
 
@@ -122,6 +141,17 @@ export default function Index() {
               </li>
             ))}
           </ol>
+          <figure className="sfm mt-8" aria-label={lang === 'zh' ? '示例结果' : 'Example result'}>
+            <div className="sfm-top"><span className="sfm-chip">{lang === 'zh' ? '示例结果' : 'Example result'}</span><span className="sfm-dots" aria-hidden><i /><i /><i /></span></div>
+            <p className="sfm-claim">{lang === 'zh' ? '结论：Isolation Forest 在乳腺癌数据集上 ROC AUC 约 0.85。' : 'Claim: Isolation Forest reaches ROC AUC about 0.85 on the breast cancer dataset.'}</p>
+            <dl className="sfm-nums">
+              <div><dt>{lang === 'zh' ? '论文报告' : 'Reported'}</dt><dd>0.85</dd></div>
+              <div className="hi"><dt>{lang === 'zh' ? '实测' : 'Measured'}</dt><dd>0.849</dd></div>
+              <div><dt>{lang === 'zh' ? '容差' : 'Tolerance'}</dt><dd>±3%</dd></div>
+            </dl>
+            <span className="sfm-ok">✓ {lang === 'zh' ? '已复现' : 'Reproduced'}</span>
+            <figcaption className="sfm-cap">{lang === 'zh' ? '仅为界面示例，非真实运行结果。' : 'Illustration of the result format, not a real run.'}</figcaption>
+          </figure>
           <p className="mt-8 max-w-xl border-t border-border pt-4 text-sm text-muted-foreground">{t('honesty')}</p>
         </div>
 
@@ -223,7 +253,12 @@ export default function Index() {
           ) : recentError ? (
             <p className="text-sm text-destructive">{t('loadError')}</p>
           ) : recent.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">{t('emptyGallery')}</p>
+            <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+              <p className="text-sm text-muted-foreground">{t('emptyGallery')}</p>
+              <button type="button" className="mt-4 h-10 rounded-full border border-border px-5 text-sm font-medium transition-colors hover:border-primary hover:text-primary" onClick={() => document.getElementById('claim')?.focus()}>
+                {lang === 'zh' ? '运行第一个核验' : 'Run the first check'}
+              </button>
+            </div>
           ) : (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {recent.map((r) => (
@@ -247,6 +282,15 @@ export default function Index() {
           )}
         </div>
       </section>
+
+      <SuiteFaq lang={lang} id="faq" items={FAQ[lang]} />
+      <SuiteCta
+        title={lang === 'zh' ? '准备好核验一个结论了吗？' : 'Have a number you want to test?'}
+        body={lang === 'zh' ? '写下结论，约 40 秒后得到结果。' : 'Write the claim. Get a verdict in about 40 seconds.'}
+        label={lang === 'zh' ? '开始核验' : 'Start a check'}
+        href="#check"
+        onClick={() => document.getElementById('check')?.scrollIntoView({ behavior: 'smooth' })}
+      />
     </Shell>
   );
 }
