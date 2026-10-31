@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import SuiteTopBar from '@/components/SuiteTopBar';
+import { SuiteFooter } from '@/components/SuiteFooter';
 import { usePrefs } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -22,16 +23,14 @@ export function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SuiteTopBar appId="lite" brand={t('brand')} letter="L" homeTo="/#check" nav={nav} dark={dark} onToggleDark={toggleDark} lang={lang} onLang={setLang} />
-      <main className="mx-auto max-w-[1160px] px-4 pb-24 sm:px-8">{children}</main>
-      <footer className="border-t border-border">
-        <div className="mx-auto max-w-[1160px] px-4 py-8 text-sm text-muted-foreground sm:px-8">{t('honesty')}</div>
-      </footer>
+      <main id="top" className="mx-auto max-w-[1160px] px-4 pb-24 sm:px-8">{children}</main>
+      <SuiteFooter lang={lang} appId="lite" note={t('honesty')} />
     </div>
   );
 }
 
 const VERDICT_STYLE: Record<string, string> = {
-  reproduced: 'bg-[#15803D]/10 text-[#15803D] border-[#15803D]/30 dark:text-[#4ADE80] dark:bg-[#4ADE80]/10 dark:border-[#4ADE80]/30',
+  reproduced: 'bg-[#15803D]/10 text-[#136F36] border-[#15803D]/30 dark:text-[#4ADE80] dark:bg-[#4ADE80]/10 dark:border-[#4ADE80]/30',
   partial: 'bg-[#B45309]/10 text-[#B45309] border-[#B45309]/30 dark:text-[#F0A94B] dark:bg-[#F0A94B]/10 dark:border-[#F0A94B]/30',
   not_reproduced: 'bg-[#C62828]/10 text-[#C62828] border-[#C62828]/30 dark:text-[#EF7A73] dark:bg-[#EF7A73]/10 dark:border-[#EF7A73]/30',
   could_not_run: 'bg-muted text-muted-foreground border-border',
