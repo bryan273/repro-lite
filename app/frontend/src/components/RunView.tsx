@@ -145,7 +145,6 @@ export function RunView({ state, onDownload }: { state: CheckState; onDownload: 
               <Stat label={t('measured')} value={fmtNum(state.measured)} />
               <Stat label={t('target')} value={fmtNum(c?.target_value)} />
               <Stat label={t('tolerance')} value={`${c?.tolerance_pct ?? '-'}%`} />
-              <Stat label={t('flags')} value={state.flags.length} />
               <Stat label={t('tokens')} value={state.tokens.toLocaleString()} />
               <Stat label={t('totalTime')} value={`${(state.elapsedMs / 1000).toFixed(1)} s`} />
             </div>

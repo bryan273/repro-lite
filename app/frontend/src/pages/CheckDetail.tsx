@@ -89,7 +89,6 @@ export default function CheckDetail() {
               <Stat label={t('tolerance')} value={`${rec.tolerance_pct ?? '-'}%`} />
               <Stat label={t('metric')} value={rec.metric || '-'} />
               <Stat label={t('dataset')} value={rec.dataset || '-'} />
-              <Stat label={t('tokens')} value={(rec.tokens_used ?? 0).toLocaleString()} />
               <Stat label={t('totalTime')} value={`${((rec.elapsed_ms ?? 0) / 1000).toFixed(1)} s`} />
             </div>
             <section>
