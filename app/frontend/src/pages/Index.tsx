@@ -1,3 +1,4 @@
+import { FeatureBento, GradLast, type Feature } from '@/components/SuiteUI';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Download, Loader2, Square } from 'lucide-react';
@@ -40,6 +41,21 @@ const FAQ = {
     { q: '它能替代完整复现吗？', a: '不能。它只在小型公开数据集上、以小规模核验一个结论。完整论文请用 Paper Repro Agent，或向 Repro Desk 申请人工核对的报告。' },
     { q: '容差是什么意思？', a: '你给出的数字与实测数字之间，仍算作“已复现”的相对差距（百分比），默认 3%。它在运行代码之前就固定，不能看到结果后再调整。' },
     { q: '别人能看到我的核验吗？', a: '完成的核验会保存，并显示在“最近核验”中供其他访客查看。请勿粘贴私密或未发表的内容。' },
+  ],
+};
+
+const LITE_STEPS: Record<'en' | 'zh', Feature[]> = {
+  en: [
+    { t: 'Plan', p: 'Your claim becomes a contract: the metric, the dataset, the target and the tolerance, all fixed before any code runs.', d: 'M9 5H5v14h14v-4M9 5V3h6v2M9 5h6M9 12l2 2 4-4' },
+    { t: 'Write and run', p: 'The agent writes Python and runs it with Pyodide inside this tab, up to 10 turns and 60 seconds per run.', d: 'M8 8l-4 4 4 4M16 8l4 4-4 4M13 6l-2 12' },
+    { t: 'Clean re-run', p: 'The final script runs again from scratch in a fresh worker. The measured value comes from this second run.', d: 'M4 12a8 8 0 0114-5.3L20 9M20 4v5h-5M20 12a8 8 0 01-14 5.3L4 15M4 20v-5h5' },
+    { t: 'Audit', p: 'A second review looks for shortcuts: a pasted-in number, a swapped method, leaked test data. Serious findings lower the verdict.', d: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3zM9 12l2 2 4-4' },
+  ],
+  zh: [
+    { t: '制定计划', p: '你的结论会变成一份契约：指标、数据集、目标值和容差，全部在运行前写定。', d: 'M9 5H5v14h14v-4M9 5V3h6v2M9 5h6M9 12l2 2 4-4' },
+    { t: '编写并运行', p: '智能体在本页内用 Pyodide 编写并运行 Python，最多 10 轮，每次运行不超过 60 秒。', d: 'M8 8l-4 4 4 4M16 8l4 4-4 4M13 6l-2 12' },
+    { t: '干净重跑', p: '最终脚本在全新的 worker 中从零再运行一次，测得的数值来自这第二次运行。', d: 'M4 12a8 8 0 0114-5.3L20 9M20 4v5h-5M20 12a8 8 0 01-14 5.3L4 15M4 20v-5h5' },
+    { t: '审计', p: '再用第二次审阅查找捷径：直接写入的数字、被替换的方法、泄露的测试数据。严重问题会降低结论等级。', d: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3zM9 12l2 2 4-4' },
   ],
 };
 
@@ -130,8 +146,8 @@ export default function Index() {
     <Shell>
       <section id="check" className="grid scroll-mt-20 gap-10 py-10 sm:py-14 xl:grid-cols-12 xl:gap-12 xl:py-16">
         <div className="xl:col-span-7">
-          <p className="tnum text-xs font-medium uppercase tracking-[0.14em] text-primary">{t('brand')}</p>
-          <h1 className="mt-4 font-display text-[38px] leading-[1.08] tracking-tight sm:text-[52px]">{t('heroTitle')}</h1>
+          <span className="su-pill"><i />{t('brand')}</span>
+          <h1 className="mt-4 font-display text-[38px] leading-[1.08] tracking-tight sm:text-[52px]"><GradLast text={t('heroTitle')} /></h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{t('heroBody')}</p>
           <ol className="mt-8 grid max-w-xl grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             {(['stepPlan', 'stepRun', 'stepRerun', 'stepAudit'] as const).map((k, i) => (
@@ -282,6 +298,14 @@ export default function Index() {
           )}
         </div>
       </section>
+
+      <FeatureBento
+        id="how"
+        eyebrow={lang === 'zh' ? '一次核查如何进行' : 'How a check works'}
+        title={lang === 'zh' ? '四步，每一步都留下证据。' : 'Four steps, each one leaves evidence.'}
+        lead={lang === 'zh' ? '全部在你的浏览器里运行，代码和结果都能查看。' : 'It all runs in your browser, so you can read the code and the result.'}
+        items={LITE_STEPS[lang]}
+      />
 
       <SuiteFaq lang={lang} id="faq" items={FAQ[lang]} />
       <SuiteCta
