@@ -63,7 +63,7 @@ export default function Index() {
   const loadRecent = useCallback(async () => {
     try {
       setRecentError(false);
-      setRecent(await listRecentChecks(12));
+      setRecent((await listRecentChecks(24)).filter((c) => c.verdict !== 'could_not_run').slice(0, 12));
     } catch {
       setRecentError(true);
       setRecent([]);
@@ -98,7 +98,7 @@ export default function Index() {
     setTimeout(() => runRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
     const final = await runCheck(input, setState, ctrl.signal);
     setRunning(false);
-    if (final.verdict && !final.rateLimited && final.error !== 'aborted') {
+    if (final.verdict && final.verdict !== 'could_not_run' && !final.rateLimited && final.error !== 'aborted') {
       await persist(input, final);
     }
   };
