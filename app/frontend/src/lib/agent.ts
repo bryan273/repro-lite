@@ -112,6 +112,15 @@ const TOOLS = [
   },
 ];
 
+/** Browsers report a lost connection as the unhelpful 'Failed to fetch' / 'Load failed' / 'NetworkError'. */
+export function friendlyError(e: unknown, zh = false): string {
+  const m = e instanceof Error ? e.message : String(e);
+  if (/failed to fetch|load failed|networkerror|network request failed/i.test(m)) {
+    return zh ? '网络连接中断。请检查网络后重试。' : 'The connection was lost. Check your network and try again.';
+  }
+  return m;
+}
+
 export function relDiffPct(a: number, b: number): number {
   const denom = Math.abs(b) > 1e-12 ? Math.abs(b) : 1;
   return (Math.abs(a - b) / denom) * 100;
@@ -294,7 +303,7 @@ export async function runCheck(
       await pyReady;
     } catch (e) {
       setStep('run', 'failed');
-      set({ error: e instanceof Error ? e.message : String(e) });
+      set({ error: friendlyError(e, input.lang === 'zh') });
       finalize('could_not_run', zh ? 'Python 运行环境加载失败。' : 'The Python runtime failed to load.');
       return s;
     }
@@ -432,7 +441,7 @@ export async function runCheck(
     } else if (e instanceof DOMException && e.name === 'AbortError') {
       set({ steps, error: 'aborted' });
     } else {
-      set({ steps, error: e instanceof Error ? e.message : String(e) });
+      set({ steps, error: friendlyError(e, input.lang === 'zh') });
     }
     if (s.error !== 'aborted' && !s.rateLimited) {
       finalize('could_not_run', s.error || '');
