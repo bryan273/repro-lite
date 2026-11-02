@@ -9,6 +9,8 @@ export interface Contract {
   metric: string;
   dataset: string;
   target_value: number | null;
+  /** 'at_least' when the claim says the result reaches, exceeds or is at least X; otherwise 'about'. */
+  direction: 'at_least' | 'about';
   tolerance_pct: number;
   method: string;
   assumptions: string[];
@@ -127,6 +129,7 @@ export function decideVerdict(p: {
   target: number | null;
   measured: number | null;
   tolerancePct: number;
+  direction?: 'at_least' | 'about';
   rerunValue: number | null;
   flags: AuditFlag[];
   lang: Lang;
@@ -140,16 +143,22 @@ export function decideVerdict(p: {
   }
   const reasons: string[] = [];
   const err = relDiffPct(p.measured, p.target);
+  // With the default 3% relative tolerance, a score between 0 and 1 may differ by at most one percentage point (0.01).
+  // A tolerance the user chose is respected as typed.
+  const tol = p.tolerancePct === 3 && p.target > 0 && p.target <= 1 ? Math.min(3, 1 / p.target) : p.tolerancePct;
   let level: number; // 3 reproduced, 2 partial, 1 not reproduced
-  if (err <= p.tolerancePct) {
+  if (p.direction === 'at_least' && p.measured >= p.target) {
     level = 3;
-    reasons.push(zh ? `实测与目标相差 ${err.toFixed(2)}%，在容差 ${p.tolerancePct}% 之内。` : `Measured is ${err.toFixed(2)}% from target, within the ${p.tolerancePct}% tolerance.`);
-  } else if (err <= p.tolerancePct * 3) {
+    reasons.push(zh ? `实测 ${p.measured} 不低于目标 ${p.target}，结论说的是“至少”，视为满足。` : `Measured ${p.measured} is at or above the target ${p.target}, and the claim says "at least", so it holds.`);
+  } else if (err <= tol) {
+    level = 3;
+    reasons.push(zh ? `实测与目标相差 ${err.toFixed(2)}%，在容差 ${tol.toFixed(2)}% 之内。` : `Measured is ${err.toFixed(2)}% from target, within the ${tol.toFixed(2)}% tolerance.`);
+  } else if (err <= tol * 3) {
     level = 2;
     reasons.push(zh ? `实测与目标相差 ${err.toFixed(2)}%，超出容差但在 3 倍容差之内。` : `Measured is ${err.toFixed(2)}% from target: outside tolerance but within 3x tolerance.`);
   } else {
     level = 1;
-    reasons.push(zh ? `实测与目标相差 ${err.toFixed(2)}%，远超容差 ${p.tolerancePct}%。` : `Measured is ${err.toFixed(2)}% from target, far outside the ${p.tolerancePct}% tolerance.`);
+    reasons.push(zh ? `实测与目标相差 ${err.toFixed(2)}%，远超容差 ${tol.toFixed(2)}%。` : `Measured is ${err.toFixed(2)}% from target, far outside the ${tol.toFixed(2)}% tolerance.`);
   }
   if (p.rerunValue === null) {
     if (level === 3) level = 2;
@@ -175,8 +184,8 @@ function planPrompt(input: CheckInput): ChatMessage[] {
     {
       role: 'system',
       content: `You turn a research claim into a short, fixed verification contract BEFORE any code runs. The check will run in a browser with Pyodide (numpy, pandas, scipy, scikit-learn; no internet downloads, so prefer sklearn built-in datasets like load_breast_cancer, load_wine, load_digits, load_iris, load_diabetes or synthetic data).
-Reply with JSON only: {"metric": string, "dataset": string, "target_value": number|null, "method": string, "assumptions": string[]}.
-target_value is the number stated in the claim (as a plain number, e.g. 95% -> 0.95 if the metric is a fraction). Use null only if the claim states no number. List 2-5 assumptions you must make (e.g. how labels map for anomaly detection, random seed, preprocessing). Write metric/dataset/method/assumptions text in ${langName(input.lang)}.`,
+Reply with JSON only: {"metric": string, "dataset": string, "target_value": number|null, "direction": "at_least"|"about", "method": string, "assumptions": string[]}.
+target_value is the number stated in the claim (as a plain number, e.g. 95% -> 0.95 if the metric is a fraction). Use null only if the claim states no number. direction is "at_least" when the claim says the result reaches, exceeds, beats or is at least that value; use "about" when it says approximately, about or exactly that value. List 2-5 assumptions you must make (e.g. how labels map for anomaly detection, random seed, preprocessing). Write metric/dataset/method/assumptions text in ${langName(input.lang)}.`,
     },
     {
       role: 'user',
@@ -224,6 +233,7 @@ function normalizeContract(raw: Partial<Contract> | null, tol: number): Contract
     metric: String(raw.metric ?? ''),
     dataset: String(raw.dataset ?? ''),
     target_value: tv !== null && Number.isFinite(tv) ? tv : null,
+    direction: raw.direction === 'at_least' ? 'at_least' : 'about',
     tolerance_pct: tol,
     method: String(raw.method ?? ''),
     assumptions: Array.isArray(raw.assumptions) ? raw.assumptions.map(String) : [],
@@ -403,6 +413,7 @@ export async function runCheck(
       target: contract.target_value,
       measured: s.measured,
       tolerancePct: input.tolerancePct,
+      direction: contract.direction,
       rerunValue,
       flags,
       lang: input.lang,

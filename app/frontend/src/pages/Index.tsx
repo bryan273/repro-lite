@@ -186,6 +186,7 @@ export default function Index() {
               onChange={(e) => setClaim(e.target.value)}
               placeholder={t('claimPlaceholder')}
               rows={5}
+              maxLength={1000}
               disabled={running}
               className="mt-2 resize-y text-[15px]"
               aria-invalid={!!formError}
