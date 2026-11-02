@@ -21,7 +21,7 @@ export class PySession {
   private seq = 0;
 
   private spawn(): Promise<void> {
-    const worker = new Worker('/pyodide-worker.js');
+    const worker = new Worker(import.meta.env.BASE_URL + 'pyodide-worker.js');
     this.worker = worker;
     this.ready = new Promise<void>((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('Python runtime load timed out')), INIT_TIMEOUT_MS);
