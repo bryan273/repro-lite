@@ -1,4 +1,4 @@
-const GATEWAY_URL = 'https://vzvyghmtsakixlhzzuol.supabase.co/functions/v1/agent-llm';
+const GATEWAY_URL = 'https://wzdkroxbfrlqijbeiwpk.supabase.co/functions/v1/agent-llm';
 const VISITOR_KEY = 'repro-lite-visitor';
 
 export interface ToolCall {
